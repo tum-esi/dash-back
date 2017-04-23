@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tornado WebSockets</title>
+    <script>
+        var ws;
+ 
+        function onLoad() {
+	var ip = location.host;
+	alert(ip);
+            ws = new WebSocket("ws://"+ip+"/websocket");
+ 
+         <!--   ws.onmessage = function(e) {
+               alert(e.data);
+            }; 
+	//-->
+        }
+ 
+        function sendMsg() {
+            ws.send(document.getElementById('msg').value);
+        }
+    </script>
+</head>
+<body onload="onLoad();">
+    <strong>Message to Send:</strong>&nbsp;
+	<input type="text" id="msg" maxlength="25" />&nbsp;
+	<input type="button" onclick="sendMsg();" value="Send" />
+</body>
+</html>
