@@ -1,9 +1,13 @@
+#import logging
+import os.path
 import os
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.websocket
+#import uuid
+#from tornado.options import define, options
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
@@ -33,13 +37,14 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/', IndexPageHandler),
             (r'/websocket', WebSocketHandler),
-	    (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "templates"}),
-	    #(r'/(templates/)', tornado.web.StaticFileHandler, {'path':'./'})
         ]
+
+
  
         settings = {
-			'template_path': 'templates'
-			"static_path": os.path.join(os.path.dirname('click.gif'), "templates")
+                        'template_path': 'templates',
+			#"template_path": os.path.join(os.path.dirname(__file__), "templates"),
+                        "static_path": os.path.join(os.path.dirname(__file__), "static"),
 			}
         tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -50,3 +55,7 @@ if __name__ == '__main__':
     server = tornado.httpserver.HTTPServer(app)
     server.listen(8000)
     tornado.ioloop.IOLoop.instance().start()
+
+
+
+

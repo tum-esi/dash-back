@@ -6,10 +6,29 @@
 <head>
 
     <title>IOT Buttons Data</title>	
-    <link rel="stylesheet"  href="styles.css">
+    <link rel="stylesheet"  href="{{static_url("styles.css")}}">
+
+    <script>
+  function onLoad() {
+	var ip = location.host;
+	alert(ip);
+            ws = new WebSocket("ws://"+ip+"/websocket");
+ 
+            ws.onmessage = function(e) {
+               alert(e.data);
+            };
+        }
+ 
+        function sendMsg() {
+            ws.send('ledon');
+        }
+    </script>
+
+
+
 </head>
 
-<body style="background-color:#F2F2F2;">
+<body onload="onLoad();" style="background-color:#F2F2F2;">
 
 
 <div class="head">
@@ -30,17 +49,33 @@ This application will read the number of Dash button press and will display the 
 To start the application please click on the image below.
 </p>
 
-<a  href="countdown.html">
-  <img  src="{{ static_url("click.gif") }}"  alt="direct to countdown" style="width:400px;height:200px;border:0;">
+<a  href="{{static_url("countdown.html")}}">
+  <img id="myclicking" src="{{ static_url("click.gif") }}"  alt="direct to countdown" style="width:400px;height:200px;border:0;">
 </a>
 </div>
 
 
-<img id="kk" src="giphy.gif" alt="IOT">
+<img id="kk" src="{{ static_url("gify.gif") }}" alt="IOT">
 
 <div id="vv" style align="center">
     IOT<br/>Internet of things
 </div>
+
+
+<script>
+var x = document.getElementById("myclicking");
+x.addEventListener("click", myFunction);
+x.addEventListener("click", sendMsg);
+
+function myFunction() {
+    alert ("Hello World!");
+}
+
+function someOtherFunction() {
+	
+}
+</script>
+
 
 </body>
 
