@@ -1,6 +1,6 @@
 
 from scapy.all import *
-text_file = open("Output.txt", "w")
+text_file = open("static/output.txt", "w")
 
 def arp_display(pkt):
     

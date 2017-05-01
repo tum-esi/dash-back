@@ -5,24 +5,109 @@
 
 <head>
 
-    <title>IOT Buttons Data</title>	
-    <link rel="stylesheet"  href="{{static_url("styles.css")}}">
+<meta charset="utf-8">
 
-    <script>
-  function onLoad() {
+
+    <title>IOT Buttons Data</title>	
+  
+	 <link rel="stylesheet"  href="{{static_url("styles.css")}}"> 
+		
+<script>
+
+var data = [4, 8];
+var ww = 300;
+var no =200;
+//----------On load Function--------------------------------------------	
+function onLoad() {
 	var ip = location.host;
-	alert(ip);
-            ws = new WebSocket("ws://"+ip+"/websocket");
- 
-            ws.onmessage = function(e) {
+	//alert(ip);
+    ws = new WebSocket("ws://"+ip+"/websocket");
+    ws.onmessage = function(e) {
                alert(e.data);
             };
         }
  
-        function sendMsg() {
-            ws.send('ledon');
+//--------- Function for Sending Message--------------------------------
+  function sendMsg() {
+      ws.send('ledon');
         }
-    </script>
+		
+		
+//----------- Function for displaying simple bar chart------------------
+		
+function ReplaceWithGraph() {
+    //alert("BAr Graph tak pouhanch gaya");
+	var XElement = document.getElementById("CountdownPara");
+
+//----------------------------------------------------------------------
+	var canv = document.createElement('canvas');
+	canv.id = 'someId';
+	canv.width  = 800;
+	canv.height = 600;
+	//canv.style.border   = "1px solid";
+
+//-----------------------------------------------------------------------
+
+XElement.parentNode.replaceChild(canv, XElement);
+	
+var canvas = document.getElementById("someId");
+var ctx = canvas.getContext("2d");
+var grd = ctx.createLinearGradient(0,600,0,400);
+grd.addColorStop(0,"red");
+grd.addColorStop(1,"#CD5C5C");
+ctx.fillStyle = grd;
+ctx.fillRect(80,550,80,-ww);
+ctx.font = "30px Arial";
+ctx.strokeText("No",95,450);
+ctx.strokeText(ww,95,500);	
+	
+var ctx = canvas.getContext("2d");
+var grd = ctx.createLinearGradient(0,600,0,400);
+grd.addColorStop(0,"green");
+grd.addColorStop(1,"#58D68D");
+ctx.fillStyle = grd;
+ctx.fillRect(300,550,80,-no);	
+ctx.font = "30px Arial";
+ctx.strokeText("Yes",315,450);
+ctx.strokeText(no,315,500);
+}
+		
+		
+//---------- Function for Replacing Countdown---------------------------	
+
+function ReplaceContent() {
+			
+var OLdElement = document.getElementById("Button");
+
+var counter =10;
+var newElement = document.createElement("p");
+newElement.setAttribute("id", "CountdownPara");
+newElement.innerHTML = "wait for 10 seconds.";
+newElement.style.color = "blue";
+newElement.style.fontFamily = "Arial";
+newElement.style.fontSize = "72px";
+newElement.style.position = "absolute";
+newElement.style.left = "200px";
+newElement.style.top = "200px"; 
+
+
+OLdElement.parentNode.replaceChild(newElement, OLdElement);
+
+var CountDecrement= setInterval(function() {
+    counter--;
+    if(counter < 0) {
+        
+		//window.open("PieGraph.html");
+        clearInterval(CountDecrement);
+		ReplaceWithGraph();
+    } else {
+        newElement.innerHTML = "wait for " + counter.toString() + " seconds.";
+    }
+}, 1000);
+}
+	
+		
+</script>
 
 
 
@@ -44,18 +129,19 @@ This application will read the number of Dash button press and will display the 
 </p>
 </div>
 
-<div class="Button">
+<div id="Button">
 <p>
 To start the application please click on the image below.
 </p>
 
-<a  href="{{static_url("countdown.html")}}">
-  <img id="myclicking" src="{{ static_url("click.gif") }}"  alt="direct to countdown" style="width:400px;height:200px;border:0;">
-</a>
+<img id="myclicking" src="{{ static_url("click.gif") }}"  alt="direct to countdown" style="width:400px;height:200px;border:0;"> 
+<!-- <img id="myclicking" src="static/click.gif"  alt="direct to countdown" style="width:400px;height:200px;border:0;"> -->
+
 </div>
 
 
-<img id="kk" src="{{ static_url("gify.gif") }}" alt="IOT">
+<img id="kk" src="{{ static_url("gify.gif") }}" alt="IOT"> 
+<!-- <img id="kk" src="static/gify.gif" alt="IOT"> -->
 
 <div id="vv" style align="center">
     IOT<br/>Internet of things
@@ -64,16 +150,8 @@ To start the application please click on the image below.
 
 <script>
 var x = document.getElementById("myclicking");
-x.addEventListener("click", myFunction);
 x.addEventListener("click", sendMsg);
-
-function myFunction() {
-    alert ("Hello World!");
-}
-
-function someOtherFunction() {
-	
-}
+x.addEventListener("click", ReplaceContent)
 </script>
 
 

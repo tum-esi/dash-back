@@ -32,7 +32,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             os.system('python script.py')
             self.write_message("script is ended")
         else: 
-            self.write_message("insan ka bacha ban")
+            self.write_message("please wite ledon")
 
 
 # our index page handler
