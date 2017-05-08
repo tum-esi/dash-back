@@ -1,2 +1,2 @@
 # dash-back
-A test file on GitHub
+Participate in project. A test file on GitHub
