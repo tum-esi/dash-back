@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html>
+
+
+<head>
+
+
+    <title>IOT Buttons Data</title>	
+  
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="{{static_url("w3.css")}}">
+		
+<script>
+
+var ButtonNo = ["Pressed Buttons:"];
+var yy = 300;
+var nn =200;
+var whatToDoWithMsg=0
+var SniffEnded=0;
+var ButtonDataRecieved =0;
+var YesDataRecieved=0;
+var YES=0;
+var No=0;
+var AllButtonNoTransmited=0;
+var SnifRecieved= 0;
+
+//----------On load Function--------------------------------------------	
+function onLoad() {
+	var ip = location.host;
+	//alert(ip);
+    ws = new WebSocket("ws://"+ip+"/websocket");
+    ws.onmessage = function(e) {
+
+		if (whatToDoWithMsg == 0) {
+    			alert(e.data);
+				}     
+        
+		if (whatToDoWithMsg == 1) {
+    			Yes=parseInt(e.data);
+			yy=-Yes*100;
+			YesDataRecieved=1;
+				}     
+
+		if (whatToDoWithMsg == 2) {
+			No=parseInt(e.data);
+			nn =-No*100;
+			ButtonDataRecieved =1;
+			//alert(No);
+				} 
+    			
+
+		if (whatToDoWithMsg == 3) {
+			SniffEnded=parseInt(e.data);
+			SnifRecieved=1;
+				} 
+
+		if (whatToDoWithMsg == 11){
+		
+				if(e.data != "end") {     
+				ButtonNo.push(e.data);
+					}
+				if(e.data == "end"){
+				AllButtonNoTransmited = 1;
+					}
+				
+				}
+				
+            };
+        }
+ 
+//--------- Function for Sending Message--------------------------------
+  function sendMsg() {
+     ws.send('ledon');
+        }
+		
+		
+//----------- Function for displaying simple bar chart------------------
+		
+function ReplaceWithGraph() {
+    //alert("BAr Graph tak pouhanch gaya");
+	var XElement = document.getElementById("CountdownPara");
+
+//-------------------------------------
+	var canv = document.createElement('canvas');
+	canv.id = 'someId';
+	canv.width  = 800;
+	canv.height = 600;
+	//canv.style.border   = "1px solid";
+
+//-------------------------------------
+
+XElement.parentNode.replaceChild(canv, XElement);
+	
+var canvas = document.getElementById("someId");
+var ctx = canvas.getContext("2d");
+var grd = ctx.createLinearGradient(0,600,0,400);
+grd.addColorStop(0,"red");
+grd.addColorStop(1,"#CD5C5C");
+ctx.fillStyle = grd;
+ctx.fillRect(80,550,80,nn);
+ctx.font = "30px Arial";
+ctx.strokeText("No",95,450);
+ctx.strokeText(No,95,500);	
+
+var ctx = canvas.getContext("2d");
+var grd = ctx.createLinearGradient(0,600,0,400);
+grd.addColorStop(0,"green");
+grd.addColorStop(1,"#58D68D");
+ctx.fillStyle = grd;
+ctx.fillRect(300,550,80,yy);	
+ctx.font = "30px Arial";
+ctx.strokeText("Yes",315,450);
+ctx.strokeText(Yes,315,500);
+}
+		
+		
+//---------- Function for Replacing Countdown---------------------------	
+
+function ReplaceContent() {
+			
+var OLdElement = document.getElementById("Button");
+
+var counter =12;
+var newElement = document.createElement("p");
+newElement.setAttribute("id", "CountdownPara");
+newElement.innerHTML = "wait for 12 seconds.";
+newElement.style.color = "blue";
+newElement.style.fontFamily = "Arial";
+newElement.style.fontSize = "72px";
+newElement.style.position = "absolute";
+newElement.style.left = "200px";
+newElement.style.top = "200px"; 
+
+
+OLdElement.parentNode.replaceChild(newElement, OLdElement);
+
+var CountDecrement= setInterval(function() {
+    counter--;
+
+	if(SnifRecieved == 0) {
+		whatToDoWithMsg=3;	
+	}
+	
+	if(counter < 0 && ButtonDataRecieved == 1){
+	whatToDoWithMsg=11;
+	ws.send('SendAllData');
+	ButtonDataRecieved =0;
+	}
+	
+	if(counter < 0 && AllButtonNoTransmited == 1){
+		document.getElementById("ButtonPressed").innerHTML = ButtonNo;
+		clearInterval(CountDecrement);	
+		ReplaceWithGraph();
+	}
+	
+	
+	if(counter < 0 && SniffEnded == 1) {
+        
+	whatToDoWithMsg=1;
+	ws.send('Yes Button');
+	SniffEnded=0;
+	} 
+
+	if(counter < 0 && YesDataRecieved == 1) {
+
+	whatToDoWithMsg=2;
+	ws.send('No Button');
+	YesDataRecieved = 0;
+	}
+
+	if(counter < 0){
+	}
+
+	else {
+        newElement.innerHTML = "wait for " + counter.toString() + " seconds.";
+	}
+
+}, 1000);
+}
+	
+		
+</script>
+
+
+
+</head>
+
+<body onload="onLoad();" >
+
+
+      <header class="w3-container w3-red w3-padding">
+         <h1>Application for IOT Dash Buttons</h1>
+      </header>
+      <div id="ButtonPressed" class="w3-container w3-border w3-teal">
+         <p>This application will read the number of Dash button press and will display the result in the form of bar graph after a span of 10 seconds.</p>
+      </div>
+		<div id="Button" class="w3-container">
+		<h2>Press the Button below to start</h2>
+		<button id="myclicking" class="w3-button w3-display-middle w3-xlarge w3-square w3-khaki w3-card-4">+Press Me to Start+</button></button>
+	</div>
+	  
+
+<script>
+var x = document.getElementById("myclicking");
+x.addEventListener("click", sendMsg);
+x.addEventListener("click", ReplaceContent);
+</script>
+
+
+</body>
+
+
+</html>
