@@ -10,3 +10,10 @@ Small hands-on IoT project. A Raspberry Pi should count individual dash-button p
 1. push to your fork: `git push origin master`
 1. issue a pull request here on github
 
+
+## Run 
+
+1. open a terminal and run `python main.py`
+1. visit http://localhost:8000
+
+
