@@ -6,14 +6,19 @@
 <head>
 
 
-    <title>IOT Buttons Data</title>	
+    <title>IOT Buttons based Q/A</title>	
   
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="stylesheet" href="{{static_url("w3.css")}}">
 		
+<style>
+		form {font-size: 38px;}
+</style>
+		
 <script>
 
-var ButtonNo = ["Pressed Buttons:"];
+var YesButtonNo = ["Yes Pressed Buttons:"];
+var NoButtonNo = ["No Pressed Buttons:"];
 var yy = 300;
 var nn =200;
 var whatToDoWithMsg=0
@@ -25,7 +30,7 @@ var No=0;
 var AllButtonNoTransmited=0;
 var SnifRecieved= 0;
 
-//----------On load Function--------------------------------------------	
+//---------- On load Function--------------------------------------------	
 function onLoad() {
 	var ip = location.host;
 	//alert(ip);
@@ -40,6 +45,7 @@ function onLoad() {
     			Yes=parseInt(e.data);
 			yy=-Yes*100;
 			YesDataRecieved=1;
+			//alert("hhere");
 				}     
 
 		if (whatToDoWithMsg == 2) {
@@ -47,39 +53,141 @@ function onLoad() {
 			nn =-No*100;
 			ButtonDataRecieved =1;
 			//alert(No);
-				} 
-    			
-
-		if (whatToDoWithMsg == 3) {
-			SniffEnded=parseInt(e.data);
-			SnifRecieved=1;
+			
 				} 
 
-		if (whatToDoWithMsg == 11){
+
+		if (whatToDoWithMsg == 4){
 		
-				if(e.data != "end") {     
-				ButtonNo.push(e.data);
+				if(e.data != "Nend") {     
+				NoButtonNo.push(e.data);
 					}
-				if(e.data == "end"){
+				if(e.data == "Nend"){
 				AllButtonNoTransmited = 1;
+				//alert("here");
 					}
-				
 				}
+    			
+		if (whatToDoWithMsg == 3){
+		
+				if(e.data != "Yend") {     
+				YesButtonNo.push(e.data);
+					}
+				if(e.data == "Yend"){
+				//alert("here");
+				whatToDoWithMsg = 4;
+					}
+				}
+
+
+
+
+
+		if (whatToDoWithMsg == 100) {
+			//SniffEnded=parseInt(e.data);
+			//SnifRecieved=1;
+			
+				if(e.data == "Yes Ended"){
+					//alert(e.data);
+					ReplaceforNo();
+					} 
+
+				if(e.data == "No Ended"){
+					//alert(e.data);
+					SniffEnded =1;
+					} 
+
+				}		
+
+		
 				
             };
         }
  
 //--------- Function for Sending Message--------------------------------
   function sendMsg() {
-     ws.send('ledon');
+     ws.send('Start');
         }
 		
-		
+//------------------Function Replacing for No button----------------------------------------
+	
+function ReplaceforNo() {
+
+var old= document.getElementById("CountdownPara");
+
+
+counter =10;
+var newvar = document.createElement("p");
+newvar.setAttribute("id", "NewCountdownPara");
+newvar.innerHTML = "Vote for No in 10 seconds";
+newvar.style.color = "red";
+newvar.style.fontFamily = "Arial";
+newvar.style.fontSize = "72px";
+newvar.style.position = "absolute";
+newvar.style.left = "200px";
+newvar.style.top = "200px";
+
+
+
+
+old.parentNode.replaceChild(newvar, old);
+
+
+
+var CountDecrement= setInterval(function() {
+    counter--;
+
+	
+	if(counter < 0 && SniffEnded == 1) {
+        
+	whatToDoWithMsg=1;
+	ws.send('Yes Button');
+	SniffEnded=0;
+	} 
+
+	if(counter < 0 && YesDataRecieved == 1) {
+
+	whatToDoWithMsg=2;
+	ws.send('No Button');
+	YesDataRecieved = 0;
+	}
+
+	if(counter < 0 && ButtonDataRecieved == 1){
+	whatToDoWithMsg=3;
+	ws.send('SendAllData');
+	ButtonDataRecieved =0;
+	}
+	
+	if(counter < 0 && AllButtonNoTransmited == 1){
+		var ButtonNo= YesButtonNo.concat(NoButtonNo);
+		document.getElementById("vote").innerHTML = ButtonNo;
+		clearInterval(CountDecrement);	
+		ReplaceWithGraph();
+	}
+
+	if(counter < 0){
+
+
+	}
+
+	else {
+        newvar.innerHTML = "Vote for No in " + counter.toString() + " seconds";
+	}
+
+}, 1000);
+
+}
+	
+
+
+
+
+	
 //----------- Function for displaying simple bar chart------------------
 		
 function ReplaceWithGraph() {
-    //alert("BAr Graph tak pouhanch gaya");
-	var XElement = document.getElementById("CountdownPara");
+    //alert("Bar Graph tak pouhanch gaya");
+	var XElement = document.getElementById("NewCountdownPara");
 
 //-------------------------------------
 	var canv = document.createElement('canvas');
@@ -121,11 +229,12 @@ function ReplaceContent() {
 			
 var OLdElement = document.getElementById("Button");
 
-var counter =12;
+
+var counter =10;
 var newElement = document.createElement("p");
 newElement.setAttribute("id", "CountdownPara");
-newElement.innerHTML = "wait for 12 seconds.";
-newElement.style.color = "blue";
+newElement.innerHTML = " Vote for Yes in 10 seconds";
+newElement.style.color = "green";
 newElement.style.fontFamily = "Arial";
 newElement.style.fontSize = "72px";
 newElement.style.position = "absolute";
@@ -133,47 +242,27 @@ newElement.style.left = "200px";
 newElement.style.top = "200px"; 
 
 
+
+
 OLdElement.parentNode.replaceChild(newElement, OLdElement);
+
+
+
 
 var CountDecrement= setInterval(function() {
     counter--;
 
 	if(SnifRecieved == 0) {
-		whatToDoWithMsg=3;	
+		whatToDoWithMsg=100;	
 	}
 	
-	if(counter < 0 && ButtonDataRecieved == 1){
-	whatToDoWithMsg=11;
-	ws.send('SendAllData');
-	ButtonDataRecieved =0;
-	}
-	
-	if(counter < 0 && AllButtonNoTransmited == 1){
-		document.getElementById("ButtonPressed").innerHTML = ButtonNo;
-		clearInterval(CountDecrement);	
-		ReplaceWithGraph();
-	}
-	
-	
-	if(counter < 0 && SniffEnded == 1) {
-        
-	whatToDoWithMsg=1;
-	ws.send('Yes Button');
-	SniffEnded=0;
-	} 
-
-	if(counter < 0 && YesDataRecieved == 1) {
-
-	whatToDoWithMsg=2;
-	ws.send('No Button');
-	YesDataRecieved = 0;
-	}
 
 	if(counter < 0){
+	clearInterval(CountDecrement);	
 	}
 
 	else {
-        newElement.innerHTML = "wait for " + counter.toString() + " seconds.";
+        newElement.innerHTML = "Vote for Yes in " + counter.toString() + " seconds";
 	}
 
 }, 1000);
@@ -192,14 +281,19 @@ var CountDecrement= setInterval(function() {
       <header class="w3-container w3-red w3-padding">
          <h1>Application for IOT Dash Buttons</h1>
       </header>
-      <div id="ButtonPressed" class="w3-container w3-border w3-teal">
-         <p>This application will read the number of Dash button press and will display the result in the form of bar graph after a span of 10 seconds.</p>
-      </div>
+
+		
+		<div id= "vote" class="w3-container w3-border w3-teal">
+        	 <p>This application will read the number of Dash button press and will display the result in the form of bar graph. A span of 10 seconds will be given "Yes" and "No" button press respectively .</p>
+		</div>
 		<div id="Button" class="w3-container">
-		<h2>Press the Button below to start</h2>
-		<button id="myclicking" class="w3-button w3-display-middle w3-xlarge w3-square w3-khaki w3-card-4">+Press Me to Start+</button></button>
-	</div>
-	  
+		<h2>Please Enter your question</h2>
+		<form>
+		<input class="w3-input" type="text">
+		</form>
+		<button id="myclicking" class="w3-button w3-display-middle w3-xlarge w3-square w3-khaki w3-card-4">+Press here to start+</button>
+		</div>
+	 	
 
 <script>
 var x = document.getElementById("myclicking");

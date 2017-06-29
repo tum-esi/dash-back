@@ -15,13 +15,20 @@ TEMPLATE_DIR='templates'
 sub=0
 mysum=0
 a= [0] * 6
-b= [0] * 6 
+b= [0] * 6
+
+Yes= [0] * 6
+YesButtonId= [0] * 6
+
+No= [0] * 6
+NoButtonId= [0] * 6
+
 #start_time = time.time()
 
 def arp_display(pkt):
 
-    global a
-    global b
+    global a,b,Yes,YesButtonId,No,NoButtonId
+
     if pkt.haslayer(ARP):
         if pkt[ARP].op == 1:
             if pkt[ARP].hwsrc=='44:65:0d:4a:af:e2':
@@ -63,33 +70,71 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print "Message received: {}".format(message)
         #self.write_message("Message recieved:")
-        if message == "ledon":
-            global a
+        if message == "Start":
+            global a,b,Yes,YesButtonId,No,NoButtonId
             subtracted=0
             mysum=0
             #self.write_message("script is started")
-            print sniff(prn=arp_display, filter="arp", store=0, count=0, timeout=12)
-            #self.write_message("script is ended")
+            print sniff(prn=arp_display, filter="arp", store=0, count=0, timeout=11)
+
+            Yes= a[:]
+            YesButtonId= b[:]
+            
             for element in a:
                 mysum += element
             print mysum
-            subtracted= 6-mysum
-            print subtracted
-            self.write_message("1")
+
             a= [0] * 6
+            b= [0] * 6
+
+            self.write_message("Yes Ended")
+
+            print sniff(prn=arp_display, filter="arp", store=0, count=0, timeout=11)
+
+            No= a[:]
+            NoButtonId= b[:]
+            
+            for element in a:
+                subtracted += element
+            print subtracted 
+
+            a= [0] * 6
+            b= [0] * 6
+
+
+
+            self.write_message("No Ended")
+
+            
+            #subtracted= 6-mysum
+            #print subtracted
+            #self.write_message("1")
+            #a= [0] * 6
         if message == "Yes Button":
             global mysum
             self.write_message(str(mysum))
         if message == "No Button":
             global subtracted
             self.write_message(str(subtracted))
+            
         if message == "SendAllData":
-            for index in range(len(b)):
-                k=b[index]
+            for index in range(len(YesButtonId)):
+                k=YesButtonId[index]
                 if k > 0:
                     self.write_message(str(k))
                     print k
-            self.write_message("end")
+            self.write_message("Yend")
+            
+            for index in range(len(NoButtonId)):
+                k=NoButtonId[index]
+                if k > 0:
+                    self.write_message(str(k))
+                    print k
+            self.write_message("Nend")
+
+            print "Das ende hier "
+
+            
 # our index page handler
 class IndexPageHandler(tornado.web.RequestHandler):
     def get(self):
